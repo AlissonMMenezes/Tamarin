@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 *.qcow2
+.data

@@ -1,0 +1,15 @@
+inventory:
+  image: debian
+  vms:
+    - name: webserver
+      memory: 512
+      address: 192.168.55.10/24
+      port-forward:
+        - "3022:22"
+        - "8080:80"
+    - name: database
+      memory: 512
+      address: 192.168.55.11/24
+      port-forward:
+        - "3023:22"
+        - "3306:3306"

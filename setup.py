@@ -20,5 +20,11 @@ setuptools.setup(
     python_requires=">=3.6",
     entry_points = {
         'console_scripts': ['tamarin=tamarin_iac.tamarin:main'],
-    }
+    },
+    install_requires=[
+    "paramiko==2.9.2",
+    "PyYAML==6.0",
+    "setuptools==60.5.0",
+    "terminaltables==3.1.10",
+    ]
  )

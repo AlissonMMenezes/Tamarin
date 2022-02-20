@@ -1,5 +1,5 @@
 # Tamarin
-![[img/tamarin.png | width=100px ]] IaC made in Python
+[[img/tamarin.png | width=100px ]] IaC made in Python
 
 This is a python tool to provide virtual machines on any operating systems.
 

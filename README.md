@@ -9,7 +9,7 @@ It was created initally to replace vagrant for the Mac M1, once the VirtualBox w
 ## Installation on Mac
 
     brew install qemu
-    python3 -m pip install tamarin
+    python3 -m pip install tamarin-iac
 
 ## How to use it
 

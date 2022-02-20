@@ -1,10 +1,10 @@
-# Tamarin
-[[img/tamarin.png | width=100px ]] IaC made in Python
+# Tamarin - Infra as Code
 
-This is a python tool to provide virtual machines on any operating systems.
+<img src="img/tamarin.png" width="200"> 
 
-It was created initally to replace vagrant for the Mac M1, once the VirtualBox is not compatible with this new processor.
+Tamarin is a tool to provide Virtual Machines on any operating systems.
 
+It was created initally to replace vagrant for the Mac M1, once the VirtualBox was not compatible with this new processor.
 
 ## Installation on Mac
 

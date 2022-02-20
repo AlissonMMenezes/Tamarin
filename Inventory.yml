@@ -1,11 +1,13 @@
 inventory:
   image: debian
+  ssh-user: root
+  ssh-password: alisson
   vms:
     - name: webserver
       memory: 512
       address: 192.168.55.10/24
       port-forward:
-        - "3022:22"
+        - "4022:22"
         - "8080:80"
     - name: database
       memory: 512

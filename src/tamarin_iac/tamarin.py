@@ -175,8 +175,7 @@ class Tamarin(object):
             print("[+] VM not provisioned or already destroyed")
 
     
-
-if __name__ == "__main__":
+def main():
     tamarin = Tamarin()
     if len(sys.argv) < 2:
         tamarin.usage()
@@ -189,3 +188,6 @@ if __name__ == "__main__":
         tamarin.destroy(sys.argv[2])
     elif sys.argv[1] == "status":
         tamarin.status()
+        
+if __name__ == "__main__":
+    main()

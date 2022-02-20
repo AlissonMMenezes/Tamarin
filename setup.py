@@ -3,7 +3,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
      name='tamarin-iac',  
-     version='0.2.0',
+     version='0.2.0.1',
      author="Alisson Machado",
      author_email="alisson.itops@gmail.com",
      description="Infrastructure as code",
@@ -19,7 +19,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
     entry_points = {
-        'console_scripts': ['tamarin=tamarin_iac.tamarin'],
+        'console_scripts': ['tamarin=tamarin_iac.tamarin:main'],
     },
     install_requires=[
     "paramiko==2.9.2",

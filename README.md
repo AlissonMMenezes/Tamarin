@@ -1,12 +1,12 @@
 # Tamarin
-![alt text](img/tamarin.png) IaC made in Python
+![alt text](img/tamarin.png | width=100 ) IaC made in Python
 
 This is a python tool to provide virtual machines on any operating systems.
 
 It was created initally to replace vagrant for the Mac M1, once the VirtualBox is not compatible with this new processor.
 
 
-## Installation
+## Installation on Mac
 
     brew install qemu
     python3 -m pip install tamarin
@@ -16,6 +16,7 @@ It was created initally to replace vagrant for the Mac M1, once the VirtualBox i
 First create a file called inventory.yml
 
 Example:
+
     inventory:
         image: debian
         ssh-user: root
@@ -41,6 +42,7 @@ Then you can check your iventory using:
     +-----------+---------+
 
 Run your VM:
+
     $ tamarin start webserver
     [+] Creating VM: webserver
     [+] Setting up VM: webserver on port 4022
@@ -49,6 +51,7 @@ Run your VM:
     [+] Setting the hostname
 
 Access via ssh:
+
     (base) alissonmachado@Alissons-Air Tamarin % ssh root@localhost -p 4022
     root@localhost's password: 
     

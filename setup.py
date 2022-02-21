@@ -3,7 +3,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
      name='tamarin-iac',  
-     version='0.2.0.1',
+     version='0.2.0.2',
      author="Alisson Machado",
      author_email="alisson.itops@gmail.com",
      description="Infrastructure as code",

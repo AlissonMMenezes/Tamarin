@@ -8,7 +8,7 @@ import sys
 from terminaltables import AsciiTable
 import os
 import shutil
-
+import argparse
 
 
 
@@ -61,6 +61,7 @@ class VirtualMachine(object):
                 print(e)
                 time.sleep(10)
             attempts += 1
+        print("[+] Done!")
 
     def create(self):
         print("[+] Creating VM: {0}".format(self.name))
@@ -89,60 +90,63 @@ class VirtualMachine(object):
 
         
 class Tamarin(object):
-    def __init__(self,file_name="Inventory.yml"):
+    def __init__(self,file_name="Inventory.yml"):   
+        if not os.path.exists(file_name): return     
         with open(file_name, "r") as f:
             self.inventory = yaml.load(f.read(),Loader=yaml.FullLoader)
             self.ssh_user = self.inventory["inventory"]["ssh-user"]
             self.ssh_password = self.inventory["inventory"]["ssh-password"]
 
+    def init(self):
+        inventory_example = {
+            "inventory": {
+                "image": "debian",
+                "ssh-user": "root",
+                "ssh-password": "alisson",
+                "vms": [
+                {
+                    "name": "sandbox",
+                    "memory": 512,                    
+                    "port-forward": [
+                    "2222:22"
+                    ]
+                }
+                ]
+            }
+        }
+        if os.path.exists("Inventory.yml"): return
+        with open("Inventory.yml", "w") as f:
+            print("[+] Creating Inventory.yml")
+            f.write(yaml.dump(inventory_example,default_flow_style=False))
+
     def usage(self):
         print("""
         Usage:
-        tamarin.py [provision|destroy]
-        tamarin.py start [vm_name]
-        tamarin.py stop [vm_name]
-        tamarin.py destroy [vm_name]
-        tamarin.py status
-        tamarin.py help
-        """)
+        tamarin init
+        tamarin start
+        tamarin stop
+        tamarin destroy
+        tamarin status
+        tamarin help
+        """)         
 
-    def provision(self, vm, ssh_port):
-        attempts = 0
-        while attempts < 3:
-            try: 
-                location = ("127.0.0.1", ssh_port)
-                a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                a_socket.connect(location)
-                banner = a_socket.recv(100)
-                if "SSH" in str(banner):
-                    print("[+] VM Ready!")
-                    break
-                else:
-                    print("[+] Waiting the VM to start")    
-                    time.sleep(10)                  
-            except Exception as e:
-                print(e)
-                time.sleep(10)
-            attempts += 1
+    def create_image(self,name,iso):
+        print("[+] Creating Disk for VM Base")        
+        qemu_img = "qemu-img create -f qcow2 %s.qcow2 20G"%name
+        output = subprocess.Popen([qemu_img],stdout=subprocess.PIPE,shell=True)  
 
-        try:
-            ssh = paramiko.SSHClient()
-            ssh.load_system_host_keys()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(hostname='127.0.0.1',port=ssh_port,username=self.ssh_user,password=self.ssh_password)
-            stdin,stdout,stderr = ssh.exec_command("echo %s > /etc/hostname"%vm["name"])
-            if stderr.channel.recv_exit_status() != 0:
-                stderr.read()
-            else:
-                stdout.read()
-            
-        except Exception as e:
-            print("[+] Waiting for an ssh connection")            
+        print("[+] Starting VM GUI")  
+        qemu_cmd = "qemu-system-x86_64 -m 512 -cdrom {0} {1}.qcow2".format(iso,name)    
+        output = subprocess.Popen([qemu_cmd],stdout=subprocess.PIPE,shell=True)      
+
 
 
     def start(self,name=""):
-        for vm_config in self.inventory["inventory"]["vms"]:
-            if vm_config["name"] == sys.argv[2]:
+        if not os.path.exists("Inventory.yml"):
+            print("[!] Inventory.yml not found")
+            return
+        if name == "":
+            for vm_config in self.inventory["inventory"]["vms"]:
                     vm = VirtualMachine(vm_config, self.ssh_user, self.ssh_password)
                     t = threading.Thread(target=vm.create,args=())
                     t.start()
@@ -157,37 +161,42 @@ class Tamarin(object):
             ]
         for vm in self.inventory["inventory"]["vms"]:
             status = "Running" if os.path.exists(".data/{0}.pid".format(vm["name"])) else "Stopped"
+            if not os.path.exists(".data/{0}.qcow2".format(vm["name"])): status = "Not created"
             table_data.append([vm["name"], status])
         
         table = AsciiTable(table_data)
         print (table.table)
 
-    def stop(self, vm):
-        with open(".data/{0}.pid".format(vm)) as f:
-            pid = int(f.read())
-            os.kill(pid, 1)
-            print("[!] Shutting down VM: {0}".format(sys.argv[2]))
+    def stop(self, vm=""):
+        for vm_config in self.inventory["inventory"]["vms"]:          
+            if os.path.exists(".data/%s.pid"%vm_config["name"]):             
+                with open(".data/{0}.pid".format(vm_config["name"])) as f:
+                    pid = int(f.read())
+                    os.kill(pid, 1)
+                    print("[!] Shutting down VM: {0}".format(vm_config["name"]))
 
-    def destroy(self,vm):
-        if os.path.exists(".data/%s.qcow2"%vm): 
-            os.remove(".data/%s.qcow2"%vm)
-        else:
-            print("[+] VM not provisioned or already destroyed")
+    def destroy(self,vm=""):
+        for vm_config in self.inventory["inventory"]["vms"]:                    
+            if os.path.exists(".data/%s.qcow2"%vm_config["name"]): 
+                os.remove(".data/%s.qcow2"%vm_config["name"])
+            else:
+                print("[+] VM not provisioned or already destroyed")
 
     
 def main():
+    parser = argparse.ArgumentParser(description='Tamarin - Infrastructure as Code for QEMU')
     tamarin = Tamarin()
-    if len(sys.argv) < 2:
-        tamarin.usage()
-    elif sys.argv[1] == "start":
-        tamarin.start(sys.argv[2])                     
-    elif sys.argv[1] == "stop":
-        tamarin.stop(sys.argv[2])
-    elif sys.argv[1] == "destroy":
-        tamarin.stop(sys.argv[2])
-        tamarin.destroy(sys.argv[2])
-    elif sys.argv[1] == "status":
-        tamarin.status()
+    tamarin_functions = {
+        "init":tamarin.init,
+        "start":tamarin.start,
+        "stop":tamarin.stop,
+        "destroy":tamarin.destroy,
+        "status":tamarin.status,
+        "help":parser.print_help}
+    parser.add_argument('command',choices=tamarin_functions.keys())
+    args = parser.parse_args()
+    tamarin_functions[args.command]()
+        
         
 if __name__ == "__main__":
     main()

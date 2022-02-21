@@ -1,4 +1,4 @@
-# Tamarin - Infra as Code
+# Tamarin - Infrastructure as Code
 
 <img src="img/tamarin.png" width="200"> 
 
@@ -13,24 +13,27 @@ It was created initally to replace vagrant for the Mac M1, once the VirtualBox w
 
 ## How to use it
 
+First you have to create a base image, like you do with any normal Linux installation:
+
+    tamarin image create debian -iso debian.iso
+
+
 First create a file called inventory.yml
 
 Example:
 
     inventory:
         image: debian
-        ssh-user: root
         ssh-password: alisson
+        ssh-user: root
         vms:
-            - name: webserver
+            - name: sandbox
               memory: 512
-              address: 192.168.55.10/24
               port-forward:
-                - "4022:22"
-                - "8080:80"
-              provision_script: setup_webserver.sh    
+              - '2222:22'
+   
 
-Then you can check your iventory using:
+Then you can check your inventory using:
 
     $ tamarin status
 
@@ -43,7 +46,7 @@ Then you can check your iventory using:
 
 Run your VM:
 
-    $ tamarin start webserver
+    $ tamarin start
     [+] Creating VM: webserver
     [+] Setting up VM: webserver on port 4022
     [!] Waiting port 4022 to be open
